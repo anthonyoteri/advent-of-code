@@ -16,11 +16,11 @@ tracing-tracy = "0.11.3"
 tracy-client = "0.17.4"
 tracy-client-sys = "0.24.2"
 miette = { version = "7.4.0", features = ["fancy"] }
-thiserror = "2.0.3"
+thiserror = "2.0.4"
 dhat = "0.3.2"
 env_logger = "0.11.5"
 test-log = { version = "0.2.13", features = ["trace"] }
-regex = "1.10.2"
+regex = "1.11.1"
 memoize = "0.4.1"
 
 
