@@ -1,14 +1,13 @@
 use core::panic;
 
-use crate::{error::AocError, grid::neighbors};
+use crate::error::AocError;
+use aoc::grid;
 use glam::IVec2;
 use nom::{
     character,
     multi::{self, separated_list1},
     IResult,
 };
-
-use crate::grid::{boundaries, filter_values, next_point, rows, Direction, Grid};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum Tile {
@@ -34,7 +33,7 @@ fn parse_tile(input: &str) -> IResult<&str, Tile> {
     character::complete::one_of("XMAS")(input).map(|(input, c)| (input, Tile::from(c)))
 }
 
-fn parse(input: &str) -> IResult<&str, Grid<Tile>> {
+fn parse(input: &str) -> IResult<&str, grid::Grid<Tile>> {
     let (input, rows) =
         separated_list1(character::complete::newline, multi::many1(parse_tile))(input)?;
 
@@ -47,25 +46,25 @@ fn parse(input: &str) -> IResult<&str, Grid<Tile>> {
                 (position, tile)
             })
         })
-        .collect::<Grid<Tile>>();
+        .collect::<grid::Grid<Tile>>();
 
     Ok((input, grid))
 }
 
-fn search(grid: &Grid<Tile>) -> Vec<(IVec2, Direction)> {
-    let starting_positions = filter_values(grid, |tile| *tile == Tile::X);
+fn search(grid: &grid::Grid<Tile>) -> Vec<(IVec2, grid::Direction)> {
+    let starting_positions = grid::filter_values(grid, |tile| *tile == Tile::X);
 
     starting_positions
         .keys()
         .flat_map(|start| {
-            neighbors(grid, start)
+            grid::neighbors(grid, start)
                 .into_iter()
                 .filter(|(direction, (pos, m_tile))| {
                     if matches!(m_tile, Tile::M) {
-                        let next_pos = next_point(pos, direction);
+                        let next_pos = grid::next_point(pos, direction);
                         if let Some(a_tile) = grid.get(&next_pos) {
                             if matches!(a_tile, Tile::A) {
-                                let next_pos = next_point(&next_pos, direction);
+                                let next_pos = grid::next_point(&next_pos, direction);
                                 if let Some(s_tile) = grid.get(&next_pos) {
                                     matches!(s_tile, Tile::S)
                                 } else {

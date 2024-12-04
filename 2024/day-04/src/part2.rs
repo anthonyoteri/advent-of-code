@@ -1,14 +1,13 @@
 use core::panic;
 
-use crate::{error::AocError, grid::neighbors};
+use crate::{error::AocError};
 use glam::IVec2;
 use nom::{
     character,
     multi::{self, separated_list1},
     IResult,
 };
-
-use crate::grid::{boundaries, filter_values, next_point, rows, Direction, Grid};
+use aoc::grid;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum Tile {
@@ -34,7 +33,7 @@ fn parse_tile(input: &str) -> IResult<&str, Tile> {
     character::complete::one_of("XMAS")(input).map(|(input, c)| (input, Tile::from(c)))
 }
 
-fn parse(input: &str) -> IResult<&str, Grid<Tile>> {
+fn parse(input: &str) -> IResult<&str, grid::Grid<Tile>> {
     let (input, rows) =
         separated_list1(character::complete::newline, multi::many1(parse_tile))(input)?;
 
@@ -47,21 +46,21 @@ fn parse(input: &str) -> IResult<&str, Grid<Tile>> {
                 (position, tile)
             })
         })
-        .collect::<Grid<Tile>>();
+        .collect::<grid::Grid<Tile>>();
 
     Ok((input, grid))
 }
 
-fn search(grid: &Grid<Tile>) -> Vec<IVec2> {
-    let starting_positions = filter_values(grid, |tile| *tile == Tile::A);
+fn search(grid: &grid::Grid<Tile>) -> Vec<IVec2> {
+    let starting_positions = grid::filter_values(grid, |tile| *tile == Tile::A);
 
     starting_positions
         .keys()
         .filter_map(|start| {
-            let ne_neighbor = next_point(&start, &Direction::NorthEast);
-            let se_neighbor = next_point(&start, &Direction::SouthEast);
-            let sw_neighbor = next_point(&start, &Direction::SouthWest);
-            let nw_neighbor = next_point(&start, &Direction::NorthWest);
+            let ne_neighbor = grid::next_point(&start, &grid::Direction::NorthEast);
+            let se_neighbor = grid::next_point(&start, &grid::Direction::SouthEast);
+            let sw_neighbor = grid::next_point(&start, &grid::Direction::SouthWest);
+            let nw_neighbor = grid::next_point(&start, &grid::Direction::NorthWest);
 
             let ne_tile = grid.get(&ne_neighbor);
             let se_tile = grid.get(&se_neighbor);

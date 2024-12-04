@@ -20,7 +20,7 @@ pub enum Direction {
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::{Direction, next_point};
+/// use aoc::grid::{Direction, next_point};
 /// use glam::IVec2;
 ///
 /// let point = IVec2::new(0, 0);
@@ -67,7 +67,7 @@ pub fn next_point(point: &IVec2, direction: &Direction) -> IVec2 {
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::Grid;
+/// use aoc::grid::Grid;
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -76,7 +76,7 @@ pub fn next_point(point: &IVec2, direction: &Direction) -> IVec2 {
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let rows = day_04::grid::rows(&grid).unwrap();
+/// let rows = aoc::grid::rows(&grid).unwrap();
 /// assert_eq!(rows[0], vec![&1, &2]);
 /// assert_eq!(rows[1], vec![&3, &4]);
 /// ```
@@ -103,7 +103,7 @@ pub fn rows<T>(grid: &Grid<T>) -> Option<Vec<Vec<&T>>> {
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::Grid;
+/// use aoc::grid::Grid;
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -112,7 +112,7 @@ pub fn rows<T>(grid: &Grid<T>) -> Option<Vec<Vec<&T>>> {
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let cols = day_04::grid::columns(&grid).unwrap();
+/// let cols = aoc::grid::columns(&grid).unwrap();
 /// assert_eq!(cols[0], vec![&1, &3]);
 /// assert_eq!(cols[1], vec![&2, &4]);
 /// ```
@@ -142,7 +142,7 @@ pub fn columns<T>(grid: &Grid<T>) -> Option<Vec<Vec<&T>>> {
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::{Grid, Direction};
+/// use aoc::grid::{Grid, Direction};
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -151,7 +151,7 @@ pub fn columns<T>(grid: &Grid<T>) -> Option<Vec<Vec<&T>>> {
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let neighbors = day_04::grid::neighbors(&grid, &IVec2::new(0, 0));
+/// let neighbors = aoc::grid::neighbors(&grid, &IVec2::new(0, 0));
 /// assert_eq!(neighbors[&Direction::East], (IVec2::new(1, 0), &2));
 /// assert_eq!(neighbors[&Direction::SouthEast], (IVec2::new(1, 1), &4));
 /// assert_eq!(neighbors[&Direction::South], (IVec2::new(0, 1), &3));
@@ -210,7 +210,7 @@ pub fn neighbors<'a, T>(grid: &'a Grid<T>, point: &IVec2) -> HashMap<Direction, 
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::Grid;
+/// use aoc::grid::Grid;
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -219,7 +219,7 @@ pub fn neighbors<'a, T>(grid: &'a Grid<T>, point: &IVec2) -> HashMap<Direction, 
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let (top_left, bottom_right) = day_04::grid::boundaries(&grid);
+/// let (top_left, bottom_right) = aoc::grid::boundaries(&grid);
 ///
 /// assert_eq!(top_left, IVec2::new(0, 0));
 /// assert_eq!(bottom_right, IVec2::new(1, 1));
@@ -240,7 +240,7 @@ pub fn boundaries<T>(grid: &Grid<T>) -> (IVec2, IVec2) {
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::Grid;
+/// use aoc::grid::Grid;
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -249,7 +249,7 @@ pub fn boundaries<T>(grid: &Grid<T>) -> (IVec2, IVec2) {
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let filtered = day_04::grid::filter_keys(&grid, |point| point.x == 1);
+/// let filtered = aoc::grid::filter_keys(&grid, |point| point.x == 1);
 /// assert_eq!(filtered.len(), 2);
 /// assert_eq!(filtered[&IVec2::new(1, 0)], 2);
 /// assert_eq!(filtered[&IVec2::new(1, 1)], 4);
@@ -268,7 +268,7 @@ pub fn filter_keys<T: Clone>(grid: &Grid<T>, filter_fn: impl Fn(&IVec2) -> bool)
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::Grid;
+/// use aoc::grid::Grid;
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -277,7 +277,7 @@ pub fn filter_keys<T: Clone>(grid: &Grid<T>, filter_fn: impl Fn(&IVec2) -> bool)
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let filtered = day_04::grid::filter_values(&grid, |value| value % 2 == 0);
+/// let filtered = aoc::grid::filter_values(&grid, |value| value % 2 == 0);
 /// assert_eq!(filtered.len(), 2);
 /// assert_eq!(filtered[&IVec2::new(1, 0)], 2);
 /// assert_eq!(filtered[&IVec2::new(1, 1)], 4);
@@ -296,7 +296,7 @@ pub fn filter_values<T: Clone>(grid: &Grid<T>, filter_fn: impl Fn(&T) -> bool) -
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::Grid;
+/// use aoc::grid::Grid;
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -305,7 +305,7 @@ pub fn filter_values<T: Clone>(grid: &Grid<T>, filter_fn: impl Fn(&T) -> bool) -
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let mapped = day_04::grid::map_keys(&grid, |point| *point + IVec2::new(1, 0));
+/// let mapped = aoc::grid::map_keys(&grid, |point| *point + IVec2::new(1, 0));
 /// assert_eq!(mapped.len(), 4);
 /// assert_eq!(mapped[&IVec2::new(1, 0)], 1);
 /// assert_eq!(mapped[&IVec2::new(2, 0)], 2);
@@ -324,7 +324,7 @@ pub fn map_keys<T: Clone>(grid: &Grid<T>, map_fn: impl Fn(&IVec2) -> IVec2) -> G
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::Grid;
+/// use aoc::grid::Grid;
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -333,7 +333,7 @@ pub fn map_keys<T: Clone>(grid: &Grid<T>, map_fn: impl Fn(&IVec2) -> IVec2) -> G
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let mapped = day_04::grid::map_values(&grid, |value| value * 2);
+/// let mapped = aoc::grid::map_values(&grid, |value| value * 2);
 /// assert_eq!(mapped.len(), 4);
 /// assert_eq!(mapped[&IVec2::new(0, 0)], 2);
 /// assert_eq!(mapped[&IVec2::new(1, 0)], 4);
@@ -352,7 +352,7 @@ pub fn map_values<T: Clone>(grid: &Grid<T>, map_fn: impl Fn(&T) -> T) -> Grid<T>
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::Grid;
+/// use aoc::grid::Grid;
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -361,7 +361,7 @@ pub fn map_values<T: Clone>(grid: &Grid<T>, map_fn: impl Fn(&T) -> T) -> Grid<T>
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let swapped = day_04::grid::transform(&grid);
+/// let swapped = aoc::grid::transform(&grid);
 /// assert_eq!(swapped.len(), 4);
 /// assert_eq!(swapped[&IVec2::new(0, 0)], 1);
 /// assert_eq!(swapped[&IVec2::new(0, 1)], 2);
@@ -378,7 +378,7 @@ pub fn transform<T: Clone>(grid: &Grid<T>) -> Grid<T> {
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::Grid;
+/// use aoc::grid::Grid;
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -387,7 +387,7 @@ pub fn transform<T: Clone>(grid: &Grid<T>) -> Grid<T> {
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let inserted = day_04::grid::insert_row(&grid, 1);
+/// let inserted = aoc::grid::insert_row(&grid, 1);
 /// assert_eq!(inserted.len(), 4);
 /// assert_eq!(inserted[&IVec2::new(0, 0)], 1);
 /// assert_eq!(inserted[&IVec2::new(1, 0)], 2);
@@ -411,7 +411,7 @@ pub fn insert_row<T: Clone>(grid: &Grid<T>, index: usize) -> Grid<T> {
 /// # Examples
 ///
 /// ```
-/// use day_04::grid::Grid;
+/// use aoc::grid::Grid;
 /// use glam::IVec2;
 ///
 /// let mut grid = Grid::new();
@@ -420,7 +420,7 @@ pub fn insert_row<T: Clone>(grid: &Grid<T>, index: usize) -> Grid<T> {
 /// grid.insert(IVec2::new(0, 1), 3);
 /// grid.insert(IVec2::new(1, 1), 4);
 ///
-/// let inserted = day_04::grid::insert_column(&grid, 1);
+/// let inserted = aoc::grid::insert_column(&grid, 1);
 /// assert_eq!(inserted.len(), 4);
 /// assert_eq!(inserted[&IVec2::new(0, 0)], 1);
 /// assert_eq!(inserted[&IVec2::new(2, 0)], 2);
