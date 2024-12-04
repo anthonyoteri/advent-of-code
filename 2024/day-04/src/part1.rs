@@ -2,19 +2,20 @@ use core::panic;
 
 use crate::error::AocError;
 use aoc::grid;
-use glam::IVec2;
 use nom::{
     character,
     multi::{self, separated_list1},
     IResult,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 enum Tile {
     X,
     M,
     A,
     S,
+    #[default]
+    Empty,
 }
 
 impl From<char> for Tile {
@@ -29,6 +30,19 @@ impl From<char> for Tile {
     }
 }
 
+impl std::fmt::Display for Tile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let c = match self {
+            Self::X => 'X',
+            Self::M => 'M',
+            Self::A => 'A',
+            Self::S => 'S',
+            Self::Empty => '.',
+        };
+        write!(f, "{}", c)
+    }
+}
+
 fn parse_tile(input: &str) -> IResult<&str, Tile> {
     character::complete::one_of("XMAS")(input).map(|(input, c)| (input, Tile::from(c)))
 }
@@ -36,60 +50,18 @@ fn parse_tile(input: &str) -> IResult<&str, Tile> {
 fn parse(input: &str) -> IResult<&str, grid::Grid<Tile>> {
     let (input, rows) =
         separated_list1(character::complete::newline, multi::many1(parse_tile))(input)?;
-
-    let grid = rows
-        .into_iter()
-        .enumerate()
-        .flat_map(|(y, row)| {
-            row.into_iter().enumerate().map(move |(x, tile)| {
-                let position = IVec2::new(x as i32, y as i32);
-                (position, tile)
-            })
-        })
-        .collect::<grid::Grid<Tile>>();
+    let grid = grid::locate(rows);
 
     Ok((input, grid))
 }
 
-fn search(grid: &grid::Grid<Tile>) -> Vec<(IVec2, grid::Direction)> {
-    let starting_positions = grid::filter_values(grid, |tile| *tile == Tile::X);
-
-    starting_positions
-        .keys()
-        .flat_map(|start| {
-            grid::neighbors(grid, start)
-                .into_iter()
-                .filter(|(direction, (pos, m_tile))| {
-                    if matches!(m_tile, Tile::M) {
-                        let next_pos = grid::next_point(pos, direction);
-                        if let Some(a_tile) = grid.get(&next_pos) {
-                            if matches!(a_tile, Tile::A) {
-                                let next_pos = grid::next_point(&next_pos, direction);
-                                if let Some(s_tile) = grid.get(&next_pos) {
-                                    matches!(s_tile, Tile::S)
-                                } else {
-                                    false
-                                }
-                            } else {
-                                false
-                            }
-                        } else {
-                            false
-                        }
-                    } else {
-                        false
-                    }
-                })
-                .map(|(direction, _)| (start.clone(), direction))
-        })
-        .collect()
-}
 #[tracing::instrument]
 pub fn process(input: &str) -> miette::Result<u64, AocError> {
     let (input, grid) = parse(input).unwrap();
     debug_assert!(input.is_empty());
 
-    let results = search(&grid);
+    let tiles = vec![Tile::X, Tile::M, Tile::A, Tile::S];
+    let results = grid::word_search(&grid, &tiles);
 
     Ok(results.len() as u64)
 }

@@ -62,6 +62,32 @@ pub fn next_point(point: &IVec2, direction: &Direction) -> IVec2 {
     }
 }
 
+/// Get an optional reference to the value at the next point in the given direction.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use aoc::grid::{Grid, Direction};
+/// use glam::IVec2;
+/// 
+/// 
+/// let mut grid = Grid::new();
+/// grid.insert(IVec2::new(0, 0), 1);
+/// grid.insert(IVec2::new(1, 0), 2);
+/// 
+/// let (next, value) = aoc::grid::travel(&grid, &IVec2::new(0, 0), Direction::East);
+/// assert_eq!(next, IVec2::new(1, 0));
+/// assert_eq!(value, Some(&2));
+/// 
+/// let (next, value) = aoc::grid::travel(&grid, &IVec2::new(0, 0), Direction::South);
+/// assert_eq!(next, IVec2::new(0, 1));
+/// assert_eq!(value, None);
+/// ```
+pub fn travel<'a, T>(grid: &'a Grid<T>, point: &IVec2, direction: Direction) -> (IVec2, Option<&'a T>) {
+    let next = next_point(point, &direction);
+    (next, grid.get(&next))
+}
+
 /// Returns a 2D vector of the grid's values ordered by rows.
 ///
 /// # Examples
@@ -435,4 +461,155 @@ pub fn insert_column<T: Clone>(grid: &Grid<T>, index: usize) -> Grid<T> {
             *point
         }
     })
+}
+
+/// Return a new Grid from a 2-dimensional vector of values.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use aoc::grid::Grid;
+/// 
+/// let rows = vec![
+///     vec![1, 2],
+///     vec![3, 4],
+/// ];
+/// 
+/// let grid = aoc::grid::locate(rows);
+/// assert_eq!(grid.len(), 4);
+/// assert_eq!(grid[&glam::IVec2::new(0, 0)], 1);
+/// assert_eq!(grid[&glam::IVec2::new(1, 0)], 2);
+/// assert_eq!(grid[&glam::IVec2::new(0, 1)], 3);
+/// assert_eq!(grid[&glam::IVec2::new(1, 1)], 4);
+/// ```
+pub fn locate<T>(rows: Vec<Vec<T>>) -> Grid<T> {
+    rows.into_iter()
+        .enumerate()
+        .flat_map(|(y, row)| {
+            row.into_iter().enumerate().map(move |(x, tile)| {
+                let position = IVec2::new(x as i32, y as i32);
+                (position, tile)
+            })
+        })
+        .collect::<Grid<T>>()
+}
+
+/// Search for a "word" in the given grid.
+/// 
+/// The search algorithm looks for a sequence of values in any direction in the
+/// given grid.  If the target is only a single value, the search will return
+/// a vector of all positions where the target value is found and the hardcoded
+/// direction `Direction::East`.
+/// 
+/// The return of this function is a vector of tuples where the first element
+/// represents the starting position where the "word" was located, and the
+/// second represents the direction in which the "word" was found.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use aoc::grid::{Grid, Direction};
+/// use glam::IVec2;
+/// 
+/// 
+/// let mut grid = Grid::new();
+/// grid.insert(IVec2::new(0, 0), 1);
+/// grid.insert(IVec2::new(0, 1), 2);
+/// grid.insert(IVec2::new(0, 2), 3);
+/// grid.insert(IVec2::new(1, 0), 1);
+/// grid.insert(IVec2::new(1, 1), 2);
+/// grid.insert(IVec2::new(1, 2), 3);
+/// grid.insert(IVec2::new(2, 0), 1);
+/// grid.insert(IVec2::new(2, 1), 2);
+/// grid.insert(IVec2::new(2, 2), 3);
+/// 
+/// let target = vec![1, 2, 3];
+/// let results = aoc::grid::word_search(&grid, &target);
+///
+/// assert_eq!(results.len(), 5);
+/// 
+/// assert!(results.contains(&(IVec2::new(0, 0), Direction::South)));
+/// assert!(results.contains(&(IVec2::new(0, 0), Direction::SouthEast)));
+/// assert!(results.contains(&(IVec2::new(1, 0), Direction::South)));
+/// assert!(results.contains(&(IVec2::new(2, 0), Direction::South)));
+/// assert!(results.contains(&(IVec2::new(2, 0), Direction::SouthWest)));
+/// ```
+/// 
+pub fn word_search<T>(grid: &Grid<T>, target: &[T]) -> Vec<(IVec2, Direction)> 
+where T: PartialEq + Clone + std::fmt::Debug
+{
+    // Base condition
+    if target.is_empty() {
+        return vec![];
+    }
+
+    let starting_positions = filter_values(grid, |tile| *tile == target[0]);
+
+    if target.len() == 1 {
+        return starting_positions.keys().map(|pos| (pos.clone(), Direction::East)).collect();
+    }
+
+    let vectors = starting_positions
+        .iter()
+        .flat_map(|(start, _)| {
+
+            neighbors(grid, start)
+                .into_iter()
+                .filter(|(_, (_, current_tile))| {
+                    **current_tile == target[1]
+                })
+                .map(|(direction, _)| (start.clone(), direction.clone()))
+            }).collect::<Vec<(IVec2, Direction)>>();
+
+     vectors
+        .into_iter()
+        .filter(|(start, direction)| {
+
+            let mut c_pos = start.clone();
+            for tile in target[1..].iter() {
+                let (next, value) = travel(grid, &c_pos, direction.clone());
+
+                if value != Some(tile) {
+                    return false;
+                }
+                c_pos = next.clone();
+            }
+            true
+        })
+        .collect()
+
+}
+
+
+/// Print the grid to the console.
+/// 
+/// # Examples
+/// 
+/// ```no_run
+/// use aoc::grid::{Grid, Direction};
+/// use glam::IVec2;
+/// 
+/// 
+/// let mut grid = Grid::new();
+/// grid.insert(IVec2::new(0, 0), 1);
+/// grid.insert(IVec2::new(0, 1), 2);
+/// grid.insert(IVec2::new(0, 2), 3);
+/// grid.insert(IVec2::new(1, 0), 1);
+/// grid.insert(IVec2::new(1, 1), 2);
+/// grid.insert(IVec2::new(1, 2), 3);
+/// 
+/// aoc::grid::print_grid(&grid);
+/// ```
+pub fn print_grid<T>(grid: &Grid<T>) 
+where T: Default + std::fmt::Display
+{
+    let default = T::default();
+    let (top_left, bottom_right) = boundaries(&grid);
+    for y in top_left.y..=bottom_right.y {
+        for x in top_left.x..=bottom_right.x {
+            let value = grid.get(&IVec2::new(x, y)).unwrap_or(&default);
+            print!("{}", value);
+        }
+        println!();
+    }
 }

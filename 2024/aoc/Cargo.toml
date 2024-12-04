@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 glam = { workspace = true }
+nom = { workspace = true }
+tracing = { workspace = true }

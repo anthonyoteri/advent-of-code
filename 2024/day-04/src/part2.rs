@@ -37,16 +37,7 @@ fn parse(input: &str) -> IResult<&str, grid::Grid<Tile>> {
     let (input, rows) =
         separated_list1(character::complete::newline, multi::many1(parse_tile))(input)?;
 
-    let grid = rows
-        .into_iter()
-        .enumerate()
-        .flat_map(|(y, row)| {
-            row.into_iter().enumerate().map(move |(x, tile)| {
-                let position = IVec2::new(x as i32, y as i32);
-                (position, tile)
-            })
-        })
-        .collect::<grid::Grid<Tile>>();
+    let grid = grid::locate(rows);
 
     Ok((input, grid))
 }
